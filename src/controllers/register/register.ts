@@ -14,7 +14,7 @@ export const postRegister = async (req: Request, res: Response) => {
 
     // Registration logic will go here
 
-    return res.status(200);
+    return res.status(200).send();
   } catch (error) {
     console.error(error);
 
