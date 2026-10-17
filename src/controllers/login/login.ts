@@ -12,34 +12,24 @@ export const postLogin = async (req: Request, res: Response) => {
   try {
     const { emailOrUsername, password } = req.body;
 
-    const user = await User.findOne(
-      emailOrUsername.includes('@')
-        ? { where: { email: emailOrUsername } }
-        : { where: { username: emailOrUsername } },
-    );
+    const user = await User.createQueryBuilder('user')
+      .where(emailOrUsername.includes('@') ? 'user.email = :value' : 'user.username = :value', {
+        value: emailOrUsername,
+      })
+      .getOne();
 
     if (!user) {
-      return {
-        errors: [
-          {
-            field: 'username',
-            message: 'Username or password is invalid.',
-          },
-        ],
-      };
+      return res.status(500).json({
+        error: `Username or password is invalid.`,
+      });
     }
 
     const valid = await argon2.verify(user.password, password);
 
     if (!valid) {
-      return {
-        errors: [
-          {
-            field: 'password',
-            message: "Username or password doesn't match.",
-          },
-        ],
-      };
+      return res.status(500).json({
+        error: `Username or password doesn't match.`,
+      });
     }
 
     if (req.session) {
@@ -50,7 +40,7 @@ export const postLogin = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
 
-    return res.status(500).render('register', {
+    return res.status(500).json({
       error: 'There was a problem logging into your account.',
     });
   }
