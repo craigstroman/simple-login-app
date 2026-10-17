@@ -8,7 +8,7 @@ import { User } from '../../entities/USER';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
-export const postRegister = async (req: Request, res: Response) => {
+export const postLogin = async (req: Request, res: Response) => {
   try {
     const { emailOrUsername, password } = req.body;
 
