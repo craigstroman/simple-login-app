@@ -1,7 +1,5 @@
 import path from 'path';
 import { Request, Response } from 'express';
-import { getConnection } from 'typeorm';
-import { v4 } from 'uuid';
 import argon2 from 'argon2';
 import dotenv from 'dotenv';
 import { User } from '../../entities/USER';
