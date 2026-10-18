@@ -14,6 +14,18 @@ export const postRegister = async (req: Request, res: Response) => {
 
     const hashedPassword = await argon2.hash(password);
 
+    if (username.length <= 2) {
+      return res.status(500).json({
+        error: `Username must be greater than 2 characters long..`,
+      });
+    }
+
+    if (password.length <= 2) {
+      return res.status(500).json({
+        error: `Password length must be greater than 2 characters long.'`,
+      });
+    }
+
     const result = await getConnection()
       .createQueryBuilder()
       .insert()
@@ -38,7 +50,7 @@ export const postRegister = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
 
-    return res.status(500).render('register', {
+    return res.status(500).json({
       error: 'There was a problem creating your account.',
     });
   }
