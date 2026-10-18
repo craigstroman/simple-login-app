@@ -34,6 +34,10 @@ export const postLogin = async (req: Request, res: Response) => {
       req.session.userId = user?.id;
     }
 
+    if (req.session) {
+      console.log('User logged in successfully:', req.session.userId);
+    }
+
     return res.status(200).send(user);
   } catch (error) {
     console.error(error);
