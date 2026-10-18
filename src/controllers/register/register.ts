@@ -17,6 +17,8 @@ export const postRegister = async (req: Request, res: Response) => {
   try {
     const { firstName, lastName, email, username, password } = req.body;
 
+    console.log('Email:', email, 'Username:', username, 'Password:', password);
+
     if (!validatePassword(password)) {
       return res.status(500).json({
         error: 'Password must contain at least 12 characters, ' + 'one number, and one special character.',
@@ -37,9 +39,11 @@ export const postRegister = async (req: Request, res: Response) => {
 
     const hashedPassword = await argon2.hash(password);
 
-    const existingUser = await getRepository(User).findOne({
-      where: [{ username }, { email }],
-    });
+    const existingUser = await getRepository(User)
+      .createQueryBuilder('user')
+      .where('user.username = :username', { username })
+      .orWhere('user.email = :email', { email })
+      .getOne();
 
     if (existingUser) {
       return res.status(500).json({
@@ -61,6 +65,8 @@ export const postRegister = async (req: Request, res: Response) => {
         })
         .returning('*')
         .execute();
+
+      console.log('result:', result);
 
       const user = result.raw[0];
 
