@@ -7,9 +7,21 @@ import { User } from '../../entities/USER';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
+const validatePassword = (password: string): boolean => {
+  const passwordRegex = /^(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$/;
+
+  return passwordRegex.test(password);
+};
+
 export const postRegister = async (req: Request, res: Response) => {
   try {
     const { firstName, lastName, email, username, password } = req.body;
+
+    if (!validatePassword(password)) {
+      return res.status(500).json({
+        error: 'Password must contain at least 12 characters, ' + 'one number, and one special character.',
+      });
+    }
 
     if (username.length <= 2) {
       return res.status(500).json({
