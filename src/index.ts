@@ -4,6 +4,8 @@ import cors from 'cors';
 import express from 'express';
 import session from 'express-session';
 import dotenv from 'dotenv';
+import Redis from 'ioredis';
+import connectRedis from 'connect-redis';
 import routes from './routes/index';
 import { User } from './entities/USER';
 
@@ -14,6 +16,9 @@ const main = async () => {
 
   const port = process.env.PORT;
   const nodeEnv = process.env.NODE_ENV;
+
+  const redis = new Redis();
+  const RedisStore = connectRedis(session);
   const secret: string = process.env.SECRET || '';
 
   const javascriptFile = nodeEnv === 'development' ? '/static/js/bundle.js' : '/static/js/main.min.js';
@@ -49,6 +54,10 @@ const main = async () => {
   app.use(
     session({
       name: 'uid',
+      store: new RedisStore({
+        client: redis,
+        disableTouch: true,
+      }),
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 365 * 10,
         httpOnly: false,
