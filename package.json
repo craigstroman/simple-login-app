@@ -17,6 +17,7 @@
     "cors": "^2.8.6",
     "express": "4.17.1",
     "express-session": "1.17.1",
+    "ioredis": "^6.0.0",
     "pg": "^8.23.0",
     "pug": "^3.0.4",
     "typeorm": "0.2.25",
