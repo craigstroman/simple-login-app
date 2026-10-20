@@ -51,31 +51,29 @@ export const postRegister = async (req: Request, res: Response) => {
 
     const hashedPassword = await argon2.hash(password);
 
-    if (!existingUser) {
-      const result = await getConnection()
-        .createQueryBuilder()
-        .insert()
-        .into(User)
-        .values({
-          first_name: firstName,
-          last_name: lastName,
-          username: username,
-          email: email,
-          password: hashedPassword,
-        })
-        .returning('*')
-        .execute();
+    const result = await getConnection()
+      .createQueryBuilder()
+      .insert()
+      .into(User)
+      .values({
+        first_name: firstName,
+        last_name: lastName,
+        username: username,
+        email: email,
+        password: hashedPassword,
+      })
+      .returning('*')
+      .execute();
 
-      console.log('result:', result);
+    console.log('result:', result);
 
-      const user = result.raw[0];
+    const user = result.raw[0];
 
-      if (req.session) {
-        req.session.userId = user?.id;
-      }
-
-      return res.status(200).send(user);
+    if (req.session) {
+      req.session.userId = user?.id;
     }
+
+    return res.status(200).send(user);
   } catch (error) {
     console.error(error);
 
