@@ -19,6 +19,18 @@ export const postRegister = async (req: Request, res: Response) => {
 
     console.log('Email:', email, 'Username:', username, 'Password:', password);
 
+    const existingUser = await getRepository(User)
+      .createQueryBuilder('user')
+      .where('user.username = :username', { username })
+      .orWhere('user.email = :email', { email })
+      .getOne();
+
+    if (existingUser) {
+      return res.status(500).json({
+        error: 'Username or email already taken.',
+      });
+    }
+
     if (!validatePassword(password)) {
       return res.status(500).json({
         error: 'Password must contain at least 12 characters, ' + 'one number, and one special character.',
@@ -38,18 +50,6 @@ export const postRegister = async (req: Request, res: Response) => {
     }
 
     const hashedPassword = await argon2.hash(password);
-
-    const existingUser = await getRepository(User)
-      .createQueryBuilder('user')
-      .where('user.username = :username', { username })
-      .orWhere('user.email = :email', { email })
-      .getOne();
-
-    if (existingUser) {
-      return res.status(500).json({
-        error: 'Username or email already taken.',
-      });
-    }
 
     if (!existingUser) {
       const result = await getConnection()
