@@ -17,8 +17,6 @@ export const postRegister = async (req: Request, res: Response) => {
   try {
     const { firstName, lastName, email, username, password } = req.body;
 
-    console.log('Email:', email, 'Username:', username, 'Password:', password);
-
     const existingUser = await getRepository(User)
       .createQueryBuilder('user')
       .where('user.username = :username', { username })
