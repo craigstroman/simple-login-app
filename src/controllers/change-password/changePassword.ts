@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { getConnection } from 'typeorm';
 import argon2 from 'argon2';
 import { User } from '../../entities/USER';
 import { validatePassword } from '../../config/validatePassword';
@@ -13,7 +14,7 @@ export const changePassword = async (req: Request, res: Response) => {
     });
   }
 
-  const key = 'forget-password:' + token;
+  const key = `forget-password: ${token}`;
   const userId = await redis.get(key);
 
   if (!userId) {
@@ -32,19 +33,32 @@ export const changePassword = async (req: Request, res: Response) => {
   }
 
   user.password = await argon2.hash(password);
-  await User.update(
-    { id: userIdNum },
-    {
-      password: await argon2.hash(password),
-    },
-  );
 
-  await redis.del(key);
+  try {
+    const result = await getConnection()
+      .createQueryBuilder()
+      .update(User)
+      .set({
+        password: await argon2.hash(password),
+      })
+      .where('id = :id', { id: userIdNum })
+      .returning('*')
+      .execute();
 
-  // log in user after change password
-  if (req.session) {
-    req.session.userId = user.id;
+    await redis.del(key);
+
+    // log in user after change password
+    if (req.session) {
+      req.session.userId = user.id;
+    }
+    return res.status(200).json({
+      message: 'User updated successfully',
+      user: result.raw[0],
+    });
+  } catch (error) {
+    console.error('Error updating password:', error);
+    return res.status(500).json({
+      error: 'An error occurred while updating the password.',
+    });
   }
-
-  return { user };
 };
