@@ -4,14 +4,9 @@ import { getConnection, getRepository } from 'typeorm';
 import argon2 from 'argon2';
 import dotenv from 'dotenv';
 import { User } from '../../entities/USER';
+import { validatePassword } from '../../config/validatePassword';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
-
-const validatePassword = (password: string): boolean => {
-  const passwordRegex = /^(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$/;
-
-  return passwordRegex.test(password);
-};
 
 export const postRegister = async (req: Request, res: Response) => {
   try {
