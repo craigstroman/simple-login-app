@@ -34,5 +34,6 @@ export const postForgotPassword = async (req: Request, res: Response) => {
 
   return res.status(200).json({
     passwordResetLink: url,
+    token: token,
   });
 };
