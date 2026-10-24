@@ -1,0 +1,5 @@
+export const validatePassword = (password: string): boolean => {
+  const passwordRegex = /^(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$/;
+
+  return passwordRegex.test(password);
+};
